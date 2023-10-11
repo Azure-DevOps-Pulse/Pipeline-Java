@@ -1,0 +1,157 @@
+trigger:
+- master
+
+# Define an agent pool (virtual machine image) for the entire pipeline.
+pool:
+  vmImage: 'ubuntu-latest'
+
+# Define parameters for your pipeline. Parameters make your pipeline more flexible.
+parameters:
+- name: environment
+  type: string
+  default: 'development'
+  values:
+    - 'development'
+    - 'staging'
+    - 'production'
+
+# Define variables that can be used throughout the pipeline.
+variables:
+- group: 'MySecureVariableGroup'  # Reference to a variable group for storing sensitive information
+
+# Define the stages in the pipeline.
+stages:
+- stage: BuildAndTest
+  displayName: 'Build and Test'
+  jobs:
+  - job: BuildAndTestJob
+    displayName: 'Build and Test Job'
+    steps:
+    - task: Maven@3
+      inputs:
+        mavenPomFile: 'pom.xml'
+        goals: 'clean install'
+      displayName: 'Build and Test Java Application'
+    - publish: '$(System.DefaultWorkingDirectory)**/target/*.jar'
+      artifact: 'drop'
+      displayName: 'Publish Artifact'
+
+- stage: SecurityScanning
+  displayName: 'Security Scanning'
+  dependsOn: BuildAndTest
+  jobs:
+  - job: SecurityScanningJob
+    displayName: 'Security Scanning Job'
+    steps:
+    - task: OWASPDependencyCheck@0
+      inputs:
+        scanPath: '$(System.DefaultWorkingDirectory)/target/*.jar'
+        reportFormat: 'HTML'
+      displayName: 'Run OWASP Dependency-Check'
+
+- stage: UITesting
+  displayName: 'UI Testing'
+  dependsOn: SecurityScanning
+  jobs:
+  - job: UITestingJob
+    displayName: 'UI Testing Job'
+    pool:
+      vmImage: 'windows-latest'
+    steps:
+    - task: UseJavaVersion@0
+      inputs:
+        versionSpec: '11'
+        jdkArchitectureOption: 'x64'
+      displayName: 'Set Java version'
+    - script: |
+        echo "Testing Azure Pipeline Script"  # (e.g., using Selenium or a testing framework)
+      displayName: 'Run UI Tests'
+
+- stage: CodeAnalysisWithSonarCloud
+  displayName: 'Code Analysis with SonarCloud'
+  dependsOn: UITesting
+  jobs:
+  - job: CodeAnalysisJob
+    displayName: 'Code Analysis Job'
+    steps:
+    - task: SonarCloudPrepare@1
+      inputs:
+        SonarCloud: 'SonarCloud'
+        organization: 'devops-stg-org'
+        scannerMode: 'Other'
+    - task: SonarCloudAnalyze@1
+      inputs:
+        jdkversion: 'JAVA_HOME_17_X64'
+    - task: SonarCloudPublish@1
+      inputs:
+        pollingTimeoutSec: '300'
+
+- stage: DeployToDev
+  displayName: 'Deploy to Development Environment'
+  dependsOn: CodeAnalysisWithSonarCloud
+  condition: and(succeeded(), eq(variables['Build.SourceBranchName'], 'master'))
+  jobs:
+  - job: DeployToDevJob
+    displayName: 'Deploy to Development Environment Job'
+    pool:
+      vmImage: 'windows-latest'
+    steps:
+    - download: current
+      artifact: 'drop'
+      displayName: 'Download Artifact'
+    - task: CopyFiles@2
+      inputs:
+        sourceFolder: '$(Pipeline.Workspace)/drop'
+        contents: '*.jar'
+        targetFolder: '$(Build.ArtifactStagingDirectory)'
+      displayName: 'Copy Artifact'
+    - script: |
+        # Add your deployment script for the development environment here
+      displayName: 'Deploy Java Application to Development Environment'
+
+- stage: DeployToStaging
+  displayName: 'Deploy to Staging Environment'
+  dependsOn: DeployToDev
+  condition: and(succeeded(), eq(variables['parameters.environment'], 'staging'))
+  jobs:
+  - job: DeployToStagingJob
+    displayName: 'Deploy to Staging Environment Job'
+    pool:
+      vmImage: 'windows-latest'
+    steps:
+    - download: current
+      artifact: 'drop'
+      displayName: 'Download Artifact'
+    - task: CopyFiles@2
+      inputs:
+        sourceFolder: '$(Pipeline.Workspace)/drop'
+        contents: '*.jar'
+        targetFolder: '$(Build.ArtifactStagingDirectory)'
+      displayName: 'Copy Artifact'
+    - script: |
+        # Add your deployment script for the staging environment here
+      displayName: 'Deploy Java Application to Staging Environment'
+
+- stage: DeployToProd
+  displayName: 'Deploy to Production Environment'
+  dependsOn: DeployToStaging
+  condition: and(succeeded(), eq(variables['parameters.environment'], 'production'))
+  jobs:
+  - job: DeployToProdJob
+    displayName: 'Deploy to Production Environment Job'
+    pool:
+      vmImage: 'ubuntu-latest'
+    steps:
+    - download: current
+      artifact: 'drop'
+      displayName: 'Download Artifact'
+    - task: CopyFiles@2
+      inputs:
+        sourceFolder: '$(Pipeline.Workspace)/drop'
+        contents: '*.jar'
+        targetFolder: '$(Pipeline.Workspace)'
+      displayName: 'Copy Artifact'
+    - script: |
+        # Add your comprehensive deployment script for the production environment here.
+        # Perform necessary actions like stopping the current application, deploying the new version, and starting the application.
+      displayName: 'Deploy Java Application to Production Environment'
