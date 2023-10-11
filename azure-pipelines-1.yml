@@ -16,8 +16,8 @@ parameters:
     - 'production'
 
 # Define variables that can be used throughout the pipeline.
-variables:
-- group: 'MySecureVariableGroup'  # Reference to a variable group for storing sensitive information
+#variables:
+#- group: 'MySecureVariableGroup'  # Reference to a variable group for storing sensitive information
 
 # Define the stages in the pipeline.
 stages:
