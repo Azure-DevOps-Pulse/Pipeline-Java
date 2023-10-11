@@ -15,10 +15,6 @@ parameters:
     - 'staging'
     - 'production'
 
-# Define variables that can be used throughout the pipeline.
-#variables:
-#- group: 'MySecureVariableGroup'  # Reference to a variable group for storing sensitive information
-
 # Define the stages in the pipeline.
 stages:
 - stage: BuildAndTest
@@ -58,9 +54,9 @@ stages:
     pool:
       vmImage: 'windows-latest'
     steps:
-    - task: UseJavaVersion@0
+    - task: UseJavaVersion@1
       inputs:
-       versionSpec: '11'
+        versionSpec: '11'
         jdkArchitectureOption: 'x64'
       displayName: 'Set Java version'
     - script: |
@@ -69,7 +65,7 @@ stages:
 
 - stage: CodeAnalysisWithSonarCloud
   displayName: 'Code Analysis with SonarCloud'
-  #dependsOn: UITesting
+  dependsOn: UITesting
   jobs:
   - job: CodeAnalysisJob
     displayName: 'Code Analysis Job'
