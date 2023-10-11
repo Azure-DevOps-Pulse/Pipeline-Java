@@ -32,7 +32,7 @@ stages:
       artifact: 'drop'
       displayName: 'Publish Artifact'
 
-*/
+##
 - stage: SecurityScanning
   displayName: 'Security Scanning'
   dependsOn: BuildAndTest
@@ -45,7 +45,7 @@ stages:
         scanPath: '$(System.DefaultWorkingDirectory)/target/*.jar'
         reportFormat: 'HTML'
       displayName: 'Run OWASP Dependency-Check'
-/*
+##
 - stage: UITesting
   displayName: 'UI Testing'
   dependsOn: SecurityScanning
