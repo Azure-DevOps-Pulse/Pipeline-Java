@@ -8,6 +8,14 @@ trigger:
 
 pool:
   vmImage: ubuntu-latest
+parameters:
+  - name: Environment
+    type: string
+    default: "staging"
+    values:
+      - 'staging'
+      - 'development'
+      - 'production'
 
 steps:
 - task: Maven@3
