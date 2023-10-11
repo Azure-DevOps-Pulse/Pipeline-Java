@@ -3,8 +3,9 @@
 # Add steps that analyze code, save build artifacts, deploy, and more:
 # https://docs.microsoft.com/azure/devops/pipelines/languages/java
 
-trigger:
+pr:
 - main
+- release/*
 
 pool:
   vmImage: ubuntu-latest
@@ -16,7 +17,7 @@ parameters:
       - 'staging'
       - 'development'
       - 'production'
-
+   
 steps:
 - task: Maven@3
   inputs:
