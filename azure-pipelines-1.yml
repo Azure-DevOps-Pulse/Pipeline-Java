@@ -1,11 +1,9 @@
 trigger:
 - master
 
-# Define an agent pool (virtual machine image) for the entire pipeline.
 pool:
   vmImage: 'ubuntu-latest'
 
-# Define parameters for your pipeline. Parameters make your pipeline more flexible.
 parameters:
 - name: environment
   type: string
@@ -15,7 +13,6 @@ parameters:
     - 'staging'
     - 'production'
 
-# Define the stages in the pipeline.
 stages:
 - stage: BuildAndTest
   displayName: 'Build and Test'
@@ -32,19 +29,18 @@ stages:
       artifact: 'drop'
       displayName: 'Publish Artifact'
 
-
-#- stage: SecurityScanning
-#  displayName: 'Security Scanning'
-#  dependsOn: BuildAndTest
-#  jobs:
-#  - job: SecurityScanningJob
-#    displayName: 'Security Scanning Job'
-#    steps:
-#    - task: OWASPDependencyCheck@0
-#      inputs:
-#        scanPath: '$(System.DefaultWorkingDirectory)/target/*.jar'
-#        reportFormat: 'HTML'
-#      displayName: 'Run OWASP Dependency-Check'
+# - stage: SecurityScanning
+#   displayName: 'Security Scanning'
+#   dependsOn: BuildAndTest
+#   jobs:
+#   - job: SecurityScanningJob
+#     displayName: 'Security Scanning Job'
+#     steps:
+#     - task: OWASPDependencyCheck@0
+#       inputs:
+#         scanPath: '$(System.DefaultWorkingDirectory)/target/*.jar'
+#         reportFormat: 'HTML'
+#       displayName: 'Run OWASP Dependency-Check'
 
 - stage: UITesting
   displayName: 'UI Testing'
@@ -57,8 +53,8 @@ stages:
     steps:
     - task: UseJavaVersion@1
       inputs:
-       versionSpec: '11'
-       jdkArchitectureOption:'x64'
+        versionSpec: '11'
+        jdkArchitectureOption: 'x64'
       displayName: 'Set Java version'
     - script: |
         echo "Testing Azure Pipeline Script"  # (e.g., using Selenium or a testing framework)
@@ -66,7 +62,7 @@ stages:
 
 - stage: CodeAnalysisWithSonarCloud
   displayName: 'Code Analysis with SonarCloud'
-  dependsOn:UITesting
+  dependsOn: UITesting
   jobs:
   - job: CodeAnalysisJob
     displayName: 'Code Analysis Job'
