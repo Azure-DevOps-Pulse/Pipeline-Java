@@ -23,9 +23,9 @@ stages:
     - task: Maven@3
       inputs:
         mavenPomFile: 'pom.xml'
-        goals: 'clean install'
+        goals: 'install'
       displayName: 'Build and Test Java Application'
-    - publish: '$(System.DefaultWorkingDirectory)**/target/*.jar'
+    - publish: '$(System.DefaultWorkingDirectory)*/target/*.jar'
       artifact: 'drop'
       displayName: 'Publish Artifact'
 
