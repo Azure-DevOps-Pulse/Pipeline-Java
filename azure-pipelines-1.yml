@@ -60,7 +60,7 @@ stages:
     steps:
     - task: UseJavaVersion@0
       inputs:
-        versionSpec: '11'
+       versionSpec: '11'
         jdkArchitectureOption: 'x64'
       displayName: 'Set Java version'
     - script: |
@@ -69,7 +69,7 @@ stages:
 
 - stage: CodeAnalysisWithSonarCloud
   displayName: 'Code Analysis with SonarCloud'
-  dependsOn: UITesting
+  #dependsOn: UITesting
   jobs:
   - job: CodeAnalysisJob
     displayName: 'Code Analysis Job'
