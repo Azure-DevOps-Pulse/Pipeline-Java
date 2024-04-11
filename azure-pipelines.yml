@@ -8,7 +8,7 @@ pr:
 - release/*
 
 pool:
-  vmImages: RedHat-latest
+  vmImages: Ubuntu-latest
 parameters:
   - name: Environment
     type: string
