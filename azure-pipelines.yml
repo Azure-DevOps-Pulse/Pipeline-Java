@@ -8,7 +8,7 @@ pr:
 - release/*
 
 pool:
-  name: Default
+  vmImages: RedHat-latest
 parameters:
   - name: Environment
     type: string
