@@ -8,7 +8,7 @@ pr:
 - release/*
 
 pool:
-  vmImages: Ubuntu-latest
+  vmImages: Self-hosted-01
 parameters:
   - name: Environment
     type: string
