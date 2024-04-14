@@ -8,7 +8,7 @@ pr:
 - release/*
 
 pool:
-  vmImages: Self-hosted-01
+  name: Self-hosted-01
 parameters:
   - name: Environment
     type: string
